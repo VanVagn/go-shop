@@ -1,0 +1,70 @@
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: shop
+      POSTGRES_USER: alexey
+      POSTGRES_PASSWORD: alexey
+    ports:
+      - "5433:5432"  # возможен кофнликт с локальной бд, поменять порт на 5433
+    volumes:
+          - postgres_data:/var/lib/postgresql/data
+          - ./postgres/init/:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alexey -d shop"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=alexey
+      - DB_PASSWORD=alexey
+      - DB_NAME=shop
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=your
+    command: sh -c "sleep 15 && ./main"
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend/html:/usr/share/nginx/html
+      - ./frontend/images:/usr/share/nginx/html/images
+      - ./frontend/css:/usr/share/nginx/html/css
+      - ./static:/usr/share/nginx/static
+      - ./frontend/js:/usr/share/nginx/html/js
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - backend
+    restart: unless-stopped
+volumes:
+  postgres_data:
+  redis_data:
