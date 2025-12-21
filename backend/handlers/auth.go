@@ -41,7 +41,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req models.LoginRequest
 	if err := c.BindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"errors": "Invaid request"})
+		c.JSON(http.StatusBadRequest, gin.H{"errors": "Invalid request"})
 		return
 	}
 

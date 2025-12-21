@@ -41,11 +41,5 @@ class ApiClient {
         });
     }
 
-    async postForm(endpoint, formData) {
-        return this.request(endpoint, {
-            method: 'POST',
-            body: formData,
-        })
-    }
 }
 const api = new ApiClient();

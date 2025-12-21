@@ -53,7 +53,7 @@ func main() {
 	}))
 
 	// Public routes
-	r.POST("/api/logout", authHandler.Logout)
+
 	r.POST("/api/register", authHandler.Register)
 	r.POST("/api/login", authHandler.Login)
 	r.GET("/api/products", productHandler.GetProducts)
@@ -62,6 +62,7 @@ func main() {
 	auth := r.Group("/api")
 	auth.Use(handlers.AuthMiddleware(authService))
 	{
+		auth.POST("/logout", authHandler.Logout)
 		auth.POST("/cart/add", cartHandler.AddToCart)
 		auth.POST("/cart/remove", cartHandler.RemoveFromCart)
 		auth.GET("/cart", cartHandler.GetCart)

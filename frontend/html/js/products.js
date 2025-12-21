@@ -25,11 +25,11 @@ class ProductsManager {
                 <h3 class="product-name">${product.name}</h3>
                 <p class="product-description">${product.description}</p>
                 <div class="product-price">$${product.price}</div>
-                <form class="add-to-cart-form" onsubmit="cart.addToCart(event, ${product.id})">
-                    <button type="submit" class="btn btn-success" style="height:200px width: 300px;">
-                        В корзину
-                    </button>
-                </form>
+                <button onclick="cart.addToCart(${product.ID})" 
+                        class="btn btn-success" 
+                        style="height:200px; width:300px;">
+                    В корзину
+                </button>
             </div>
         `).join('');
     }

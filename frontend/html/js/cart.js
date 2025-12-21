@@ -50,9 +50,10 @@ class CartManager {
                     <div class="item-total">
                         $${item.item_total.toFixed(2)}
                     </div>
-                    <form onsubmit="cart.removeFromCart(event, ${item.product.id})">
-                        <button type="submit" class="btn btn-danger">Удалить</button>
-                    </form>
+                    <button onclick="cart.removeFromCart(${item.product.ID})" 
+                            class="btn btn-danger">
+                        Удалить
+                    </button>
                 </div>
             `).join('')}
             <div class="cart-total">
@@ -60,9 +61,7 @@ class CartManager {
             </div>
         `;
     }
-
-    async addToCart(event, productId) {
-        event.preventDefault();
+    async addToCart(productId) {
         if (!auth.isLoggedIn()) {
             this.showError('Для добавления в корзину необходимо войти в систему');
             setTimeout(() => {
@@ -71,11 +70,15 @@ class CartManager {
             return;
         }
 
-        const formData = new FormData();
-        formData.append('product_id', productId);
+        if (!productId) {
+            this.showError('Ошибка: не указан ID товара');
+            return;
+        }
 
         try {
-            await api.postForm('/cart/add', formData);
+            await api.post('/cart/add', {
+                product_id: productId.toString()
+            });
             this.showSuccess('Товар добавлен в корзину!');
 
             if (window.location.pathname.includes('cart.html')) {
@@ -86,14 +89,12 @@ class CartManager {
         }
     }
 
-    async removeFromCart(event, productId) {
-        event.preventDefault();
-
-        const formData = new FormData();
-        formData.append('product_id', productId);
+    async removeFromCart(productId) {
 
         try {
-            await api.postForm('/cart/remove', formData);
+            await api.post('/cart/remove', {
+                product_id: productId.toString()
+            });
             this.showSuccess('Товар удалён из корзины');
             this.loadCart();
         } catch (error) {
