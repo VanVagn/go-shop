@@ -12,7 +12,6 @@ class ApiClient {
             ...options
         };
 
-
         try {
             const response = await fetch(`${this.baseURL}${endpoint}`, config);
 

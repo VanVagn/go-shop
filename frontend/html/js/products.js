@@ -16,18 +16,17 @@ class ProductsManager {
         const container = document.getElementById('products')
         if (!container) return;
 
-        container.innerHTML = this.products.map(product => `
-            <div class="product-card">
+        container.innerHTML = this.products.map((product, index) => `
+            <div class="product-card" style="animation-delay: ${index * 0.08}s">
                 <img src="${product.image_url}" 
                      alt="${product.name}" 
                      class="product-image"
-                     onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                     onerror="this.src='https://via.placeholder.com/400x300?text=Изображение+отсутствует'">
                 <h3 class="product-name">${product.name}</h3>
                 <p class="product-description">${product.description}</p>
-                <div class="product-price">$${product.price}</div>
+                <div class="product-price">${product.price} ₽</div>
                 <button onclick="cart.addToCart(${product.ID})" 
-                        class="btn btn-success" 
-                        style="height:200px; width:300px;">
+                        class="btn btn-success">
                     В корзину
                 </button>
             </div>

@@ -73,7 +73,7 @@ func (s *AuthService) Login(username, password string) (string, *models.User, er
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
-		return "", nil, errors.New("invalid credentials")
+		return "", nil, errors.New("invalid password")
 	}
 
 	token, err := utils.GenerateJWTToken(user.ID, s.jwtSecret)

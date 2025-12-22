@@ -65,6 +65,7 @@ func main() {
 		auth.POST("/logout", authHandler.Logout)
 		auth.POST("/cart/add", cartHandler.AddToCart)
 		auth.POST("/cart/remove", cartHandler.RemoveFromCart)
+		auth.POST("/cart/update", cartHandler.UpdateCart)
 		auth.GET("/cart", cartHandler.GetCart)
 	}
 
