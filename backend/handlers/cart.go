@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/gin-gonic/gin"
+	"go-shop/models"
 	"go-shop/services"
 	"net/http"
 )
@@ -16,14 +17,14 @@ func NewCartHandler(cartService *services.CartService) *CartHandler {
 
 func (h *CartHandler) AddToCart(c *gin.Context) {
 	userID := c.GetUint("userID")
-	productID := c.PostForm("product_id")
+	var req models.AddToCartRequest
 
-	if productID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"errors": "Product ID required"})
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат данных"})
 		return
 	}
 
-	if err := h.cartService.AddToCart(userID, productID); err != nil {
+	if err := h.cartService.AddToCart(userID, req.ProductID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -33,18 +34,34 @@ func (h *CartHandler) AddToCart(c *gin.Context) {
 
 func (h *CartHandler) RemoveFromCart(c *gin.Context) {
 	userID := c.GetUint("userID")
-	productID := c.PostForm("product_id")
-	if productID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Product ID required"})
+	var req models.RemoveFromCartRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат данных"})
 		return
 	}
 
-	if err := h.cartService.RemoveFromCart(userID, productID); err != nil {
+	if err := h.cartService.RemoveFromCart(userID, req.ProductID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Product removed from cart"})
+}
+
+func (h *CartHandler) UpdateCart(c *gin.Context) {
+	userID := c.GetUint("userID")
+	var req models.UpdateCartRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат данных"})
+		return
+	}
+
+	if err := h.cartService.UpdateCartItem(userID, req.ProductID, req.Change); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Product removed from cart"})
+	c.JSON(http.StatusOK, gin.H{"message": "Cart updated successfully"})
 }
 
 func (h *CartHandler) GetCart(c *gin.Context) {

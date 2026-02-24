@@ -4,7 +4,7 @@ class AuthManager {
 
     async isLoggedIn() {
         try {
-            const response = await fetch('/auth/check', {
+            const response = await fetch('/api/auth/check', {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -28,7 +28,7 @@ class AuthManager {
 
     async login(username, password) {
         try {
-            const response = await fetch('/login', {
+            const response = await fetch('/api/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

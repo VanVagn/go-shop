@@ -28,6 +28,25 @@ func (s *CartService) RemoveFromCart(userID uint, productID string) error {
 	return s.redisClient.HDel(context.Background(), cartKey, productID).Err()
 }
 
+func (s *CartService) UpdateCartItem(userID uint, productID string, change int) error {
+	cartKey := fmt.Sprintf("cart:%d", userID)
+
+	currentQuantity, err := s.redisClient.HGet(context.Background(), cartKey, productID).Result()
+	if err != nil && err != redis.Nil {
+		return err
+	}
+
+	quantity, _ := strconv.Atoi(currentQuantity)
+	newQuantity := quantity + change
+
+	if newQuantity <= 0 {
+		return s.redisClient.HDel(context.Background(), cartKey, productID).Err()
+	}
+
+	_, err = s.redisClient.HSet(context.Background(), cartKey, productID, newQuantity).Result()
+	return err
+}
+
 func (s *CartService) GetCart(userID uint) ([]map[string]interface{}, float64, error) {
 	cartKey := fmt.Sprintf("cart:%d", userID)
 	cartItems, err := s.redisClient.HGetAll(context.Background(), cartKey).Result()
