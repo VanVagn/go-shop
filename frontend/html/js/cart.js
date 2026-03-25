@@ -5,22 +5,47 @@ class CartManager {
         this.totalItems = 0;
     }
 
-    async loadCart() {
+    async loadCart(options = { redirectOnAuthError: true }) {   // добавили параметр
         try {
             const data = await api.get('/cart');
             this.cart = data.cart || [];
             this.total = data.total || 0;
             this.calculateTotalItems();
             this.displayCart();
+            this.updateCounter();                                 // добавили обновление счётчика
         } catch (error) {
-            if (error.message.includes('401') || error.message.includes('Authentication')) {
-                this.showError('Для доступа к корзине необходимо войти в систему');
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 2000);
+            const isAuthError = error.message.includes('401') || error.message.includes('Authentication');
+            if (isAuthError) {
+                if (options.redirectOnAuthError) {
+                    this.showError('Для доступа к корзине необходимо войти в систему');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    // Не редиректим, просто показываем пустую корзину
+                    this.cart = [];
+                    this.total = 0;
+                    this.totalItems = 0;
+                    this.updateCounter();                           // обновляем счётчик (будет 0)
+                }
             } else {
-                this.showError('Для использования корзины нужно войти в свой аккаунт');
+                if (options.redirectOnAuthError) {
+                    this.showError('Ошибка загрузки корзины: ' + error.message);
+                } else {
+                    this.cart = [];
+                    this.total = 0;
+                    this.totalItems = 0;
+                    this.updateCounter();
+                }
             }
+        }
+    }
+
+    updateCounter() {
+        const counter = document.getElementById('cart-count');
+        if (counter) {
+            counter.textContent = this.totalItems;
+            counter.style.display = this.totalItems > 0 ? 'inline-block' : 'none';
         }
     }
 
@@ -121,9 +146,7 @@ class CartManager {
             });
             this.showSuccess('Товар добавлен в корзину!');
 
-            if (window.location.pathname.includes('cart.html')) {
-                this.loadCart();
-            }
+            await this.loadCart({ redirectOnAuthError: false })
         } catch (error) {
             this.showError('Ошибка при добавлении в корзину: ' + error.message);
         }

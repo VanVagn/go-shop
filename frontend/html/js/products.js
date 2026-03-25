@@ -45,7 +45,8 @@ class ProductsManager {
 const products = new ProductsManager();
 
 if (window.location.pathname.includes('goods.html')) {
-    document.addEventListener('DOMContentLoaded', () => {
-        products.loadProducts();
+    document.addEventListener('DOMContentLoaded', async () => {
+        await products.loadProducts();
+        await cart.loadCart({ redirectOnAuthError: false });
     });
 }
